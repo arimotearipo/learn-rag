@@ -1,54 +1,35 @@
-import { createClient } from "@supabase/supabase-js"
-import { OpenAI } from "openai"
+import { openai } from "./src/openai/openai-client"
+import { querySimilarDocuments } from "./src/rag/querying"
 
-const supabaseUrl = process.env.SUPABASE_URL || ""
-const supabaseKey = process.env.SUPABASE_KEY || ""
+async function main() {
+	const userQuestion = Bun.argv.at(-1)
 
-const supabase = createClient(supabaseUrl, supabaseKey)
-
-console.log("Supabase client initialized")
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-
-async function embedAndStoreDocument(content: string) {
-	const response = await openai.embeddings.create({
-		model: "text-embedding-ada-002",
-		input: content,
-	})
-
-	const embedding = response.data[0]?.embedding
-
-	const { error } = await supabase.from("documents").insert([
-		{
-			content,
-			embedding,
-		},
-	])
-
-	if (error) {
-		console.error("Error inserting document: ", error)
-	} else {
-		console.log("Document inserted!")
-	}
-}
-
-async function querySimilarDocuments(query: string, topK = 3) {
-	const response = await openai.embeddings.create({
-		model: "text-embedding-ada-002",
-		input: query,
-	})
-
-	const queryEmbedding = response.data[0]?.embedding
-
-	const { data, error } = await supabase.rpc("match_ducments", {
-		queryEmbedding: queryEmbedding,
-		match_count: topK,
-	})
-
-	if (error) {
-		console.error("Error querying documents: ", error)
-		return []
+	if (!userQuestion) {
+		console.log("Please ask a question")
+		return
 	}
 
-	return data
+	const results = await querySimilarDocuments(userQuestion, 3)
+
+	const context = results.map((doc: any) => doc.content).join("\n")
+
+	const completion = await openai.chat.completions.create({
+		model: "gpt-3.5-turbo",
+		messages: [
+			{
+				role: "system",
+				content:
+					"You are a helpful assistant. Use the provided context to answer the question.",
+			},
+			{
+				role: "user",
+				content: `Context:\n${context}\n\nQuestion: ${userQuestion}`,
+			},
+		],
+	})
+
+	console.log(`Question: ${userQuestion}`)
+	console.log("Answer: ", completion.choices[0]?.message.content)
 }
+
+main()
