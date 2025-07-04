@@ -100,3 +100,27 @@ OPENAI_API_KEY=your-openai-api-key
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_KEY=your-supabase-key
 ```
+
+## Asking Questions
+
+After embedding your documents, you can ask questions to the AI model using Bun. Pass your question as a command-line argument to the `index.ts` script:
+
+```sh
+bun run index.ts "Who are Jules and Vincent?"
+```
+
+Or, if you have a script alias (e.g., `ask`):
+
+```sh
+bun run ask "Who are Jules and Vincent?"
+```
+
+Example output:
+
+```
+Supabase client initialized
+Question: Who are Jules and Vincent?
+Answer:  Jules and Vincent are two characters in the film "Pulp Fiction." They are hitmen and partners in crime working for influential local gangster Marsellus Wallace. Throughout the movie, they are involved in various criminal activities and have their own storyline within the larger narrative structure of the film.
+```
+
+You can replace the question with anything relevant to your embedded documents.

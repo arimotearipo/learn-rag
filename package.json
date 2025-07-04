@@ -4,7 +4,8 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"embed": "bun run embed-documents.ts"
+		"embed": "bun run embed-documents.ts",
+		"ask": "bun run index.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.0.6",
