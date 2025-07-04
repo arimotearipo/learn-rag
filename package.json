@@ -1,0 +1,17 @@
+{
+  "name": "learn-rag",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@biomejs/biome": "2.0.6",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.50.3",
+    "openai": "^5.8.2"
+  }
+}
