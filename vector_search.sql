@@ -12,11 +12,11 @@ as $$
 begin
   return query
   select
-    id,
-    content,
-    1 - (embedding <-> query_embedding) as similarity
+    documents.id,
+    documents.content,
+    1 - (documents.embedding <-> query_embedding) as similarity
   from documents
-  order by embedding <-> query_embedding
+  order by documents.embedding <-> query_embedding
   limit match_count;
 end;
 $$;
