@@ -21,7 +21,7 @@ This project demonstrates a simple Retrieval-Augmented Generation (RAG) pipeline
 2. Enable the `vectorpg` extension by running:
 
 ```sql
-create extension if not exists vectorpg;
+create extension if not exists vector;
 ```
 
 3. Create the `documents` table with an embedding column:
