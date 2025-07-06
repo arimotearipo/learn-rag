@@ -13,55 +13,12 @@ This project demonstrates a simple Retrieval-Augmented Generation (RAG) pipeline
 ## Prerequisites
 - [Bun](https://bun.sh/) installed
 - A Supabase project with Postgres
-- The `vectorpg` extension enabled in your Supabase Postgres database
 - OpenAI API key (for embeddings and chat completions)
 
-## Setting up Supabase with vectorpg
-1. Go to your Supabase SQL editor.
-2. Enable the `vectorpg` extension by running:
+## Supabase Setup (No Manual SQL Required)
+You do **not** need to manually run any SQL scripts to set up your Supabase database. The necessary extensions, tables, and functions (including `vectorpg`, `documents`, and `match_documents`) will be created automatically by the project scripts when you run them for the first time.
 
-```sql
-create extension if not exists vector;
-```
-
-3. Create the `documents` table with an embedding column:
-
-```sql
-create table if not exists documents (
-  id uuid primary key default gen_random_uuid(),
-  content text,
-  embedding vector(1536)
-);
-```
-
-4. Create the `match_documents` function for vector similarity search:
-
-```sql
-create or replace function match_documents(
-  query_embedding vector(1536),
-  match_count int default 3
-)
-returns table (
-  id uuid,
-  content text,
-  similarity float
-)
-language plpgsql
-as $$
-begin
-  return query
-  select
-    documents.id,
-    documents.content,
-    1 - (documents.embedding <-> query_embedding) as similarity
-  from documents
-  order by documents.embedding <-> query_embedding
-  limit match_count;
-end;
-$$;
-```
-
-- The `match_documents` function takes an embedding vector and returns the top N most similar documents based on vector distance.
+If you want to review or customize the SQL, see the scripts in `src/db/scripts/`.
 
 ## Embedding, Retrieval, and Chat Completion Models
 - **Embedding Model:** [OpenAI `text-embedding-ada-002`](https://platform.openai.com/docs/guides/embeddings/what-are-embeddings)
@@ -75,7 +32,7 @@ Sample documents are provided in the `sample_documents` folder. To embed and sto
 bun run embed-documents.ts
 ```
 
-This script will read all files in `sample_documents`, generate embeddings using OpenAI, and store them in your Supabase Postgres database.
+This script will read all files in `sample_documents`, generate embeddings using OpenAI, and store them in your Supabase Postgres database. It will also ensure your database is set up correctly.
 
 ## Building and Running
 1. Install dependencies:
@@ -87,19 +44,25 @@ This script will read all files in `sample_documents`, generate embeddings using
 
 ## Required Environment Variables
 
-Set the following environment variables in a `.env` file or your environment:
+Copy the provided `.env` file in the project root and update the values as needed. The following variables are required:
 
-- `OPENAI_API_KEY` – Your OpenAI API key (for embeddings and chat completions)
-- `SUPABASE_URL` – Your Supabase project URL
-- `SUPABASE_KEY` – Your Supabase service role or anon key
+- `OPENAI_API_KEY` – Your OpenAI API key (required for embeddings and chat completions)
+- `SUPABASE_URL` – Your Supabase project URL (e.g., `https://your-project.supabase.co`)
+- `SUPABASE_KEY` – Your Supabase service role or anon key (must have permissions to create tables and functions)
+- `SUPABASE_DATABASE_PASSWORD` – Your Supabase database password (used for direct database access if needed)
+- `SUPABASE_DB_URL` – Your full Supabase Postgres connection string (used for direct SQL access if needed)
 
 Example `.env`:
 
 ```
 OPENAI_API_KEY=your-openai-api-key
+SUPABASE_DATABASE_PASSWORD=your-supabase-db-password
 SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-supabase-key
+SUPABASE_KEY=your-supabase-service-role-or-anon-key
+SUPABASE_DB_URL=postgresql://postgres:your-db-password@db.your-project.supabase.co:5432/postgres
 ```
+
+> **Note:** The service role key and database credentials are recommended for local development to allow automatic database setup. Do not expose your service role key or database password in client-side code or public repositories.
 
 ## Asking Questions
 
