@@ -1,4 +1,4 @@
-### Barry
+## Barry
 
 Barry was footballer who used to play as a striker in the Malaysian football league.
 Throughout his career, he scored a total of 1732 goals for Sungai Petani FC.
